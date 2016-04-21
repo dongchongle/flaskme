@@ -33,7 +33,7 @@ app.config['SECRET_KEY'] = 'hard to guess string'
 def index():
     name = None
     form = NameForm()
-    if from.validate_on_submit():
+    if form.validate_on_submit():
         name = form.name.date
         form.name.date = ''
     return render_template('index.html', current_time=datetime.utcnow())
