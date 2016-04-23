@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
-# from flask.ext.script import Manager
 
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 
-class NameForm(Form):
-    name = StringField('What is your name?', validators=[Required()])
-    submit = SubmitField('提交')
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
 app.config['SECRET_KEY'] = 'hard to guess string'
+
+class NameForm(Form):
+    name = StringField('What is your name?', validators=[Required()])
+    submit = SubmitField('Submit')
 # manager = Manager(app)
 
 # @app.route('/')
@@ -31,16 +31,16 @@ app.config['SECRET_KEY'] = 'hard to guess string'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    name = None
-    form = NameForm()
-    if form.validate_on_submit():
-        name = form.name.date
-        form.name.date = ''
-    return render_template('index.html', current_time=datetime.utcnow())
+        name = None
+        form = NameForm()
+        if form.validate_on_submit():
+            session['name'] = form.name.data
+            return redirect(url_for('index'))
+        return render_template('index.html', form=form, name=session.get('name'))
 
-@app.route('/user/<name>')
-def user(name):
-    return render_template('user.html', name=name)
+# @app.route('/user/<name>')
+# def user(name):
+#     return render_template('user.html', name=name)
 
 @app.errorhandler(404)
 def page_not_found(e):
