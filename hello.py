@@ -12,6 +12,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.mail import Mail, Message
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -22,13 +23,27 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+mail = Mail(app)
 
 app.config['SECRET_KEY'] = 'hard to guess string'
 
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SWLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['MAIL_SERVER'] = 'stmp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['FLASKME_ADMIN'] = os.environ.get('FLASKME_ADMIN')
+app.config['FLASKME_MAIL_SUBJECT_PREFIX'] = '[Flaskme]'
+app.config['FLASKME_MAIL_SENDER'] = 'Flaskme Admin <dongchongle@gmail.com>'
 
+def send_email(to, subject, template, **kwargs):
+    msg = Message(app.config['FLASKME_MAIL_SUBJECT_PREFIX']+subject, sender=app.config['FLASKME_MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template+'.txt', **kwargs)
+    msg.html = render_template(template+'.html', **kwargs)
+    mail.send(msg)
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -69,6 +84,8 @@ def index():
             user = User(username=form.name.data)
             db.session.add(user)
             session['know'] = False
+            if app.config['FLASKME_ADMIN']:
+                send_email(app.config['FLASKME_ADMIN'], 'New User', 'mail/new_user', user=user)
         else:
             session['know'] = True
         session['name'] = form.name.data
