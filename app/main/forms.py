@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField
-from wtforms import Required
+from wtforms.validators import Required
 
 class NameForm():
     name = StringField('What is your name?', validators=[Required()])

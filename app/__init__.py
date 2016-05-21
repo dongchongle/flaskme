@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
@@ -9,6 +11,7 @@ bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
+
 
 def create_app(config_name):
     app = Flask(__name__)
