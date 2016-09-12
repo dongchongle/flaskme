@@ -3,3 +3,6 @@
 
 # Virtual environment
 venv
+
+# Mac OS X DS_Store
+*.DS_Store
